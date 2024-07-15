@@ -4,6 +4,12 @@
 	 /*func implimentations*/
 /*=============================*/
 
+static inline int getlsbi(U64 bitboard){
+	assert(bitboard);
+	bitboard = ((bitboard & - bitboard) - 1); 
+	return bitlen(bitboard);
+}
+
 static inline int bitlen(U64 bitboard){
 	int size = 0;
 	while(bitboard &= bitboard -1){
@@ -11,6 +17,21 @@ static inline int bitlen(U64 bitboard){
 	}
 	return size+1;
 }
+
+U64 set_occupancy(int index,int bits_mask,U64 atk_map){
+	U64 ocp = 0ULL;
+	int sqr = 0;
+	for(int i = 0 ; i < bits_mask ; i++){
+		sqr = getlsbi(atk_map);
+		pop_bit(atk_map,sqr);
+		
+		if(index & (1 << i)){
+			ocp |= (1ULL << sqr);
+		}
+	}
+	return ocp;
+}
+
 
 void init_leaper_attacks(){
 	//loop over every square 
@@ -23,7 +44,7 @@ void init_leaper_attacks(){
 	}
 }
 
-U64 gen_rook_attacks(int square,U64 block){
+U64 otf_rook_attacks(int square,U64 block){
 	
 	U64 attack_map = 0ULL;
 
@@ -63,7 +84,7 @@ U64 gen_rook_attacks(int square,U64 block){
 	return attack_map;
 }
 
-U64 gen_bishop_attacks(int square,U64 block){
+U64 otf_bishop_attacks(int square,U64 block){
 	U64 attack_map = 0ULL;
 
 	int r = 0;
@@ -282,14 +303,14 @@ void print_bitboard(U64 bitboard){
 
 int main(void){
 	init_leaper_attacks();
-	U64 block = 0ULL;
-	set_bit(block,D7);
-	set_bit(block,D2);
-	set_bit(block,B4);
-	set_bit(block,G4);
-	set_bit(block,H4);
-	print_bitboard(block);
-	
-	printf("the size is %d\n",bitlen(block));
+	int sqr;
+	for(int i = 0 ; i < 8 ; i++){
+		for(int j = 0 ; j < 8 ;j++){
+			sqr = i*8+j;
+			printf(" %d,",bitlen(musk_rook_attack(sqr)));	
+		}
+		printf("\n");
+	}	
+
 	return 0;
 }

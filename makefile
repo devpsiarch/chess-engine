@@ -1,5 +1,5 @@
 cc = gcc
-cflages = -lncurses -Wall -Wextra -pedantic -I$(IDIR)
+cflages = -lncurses -Wall -Wextra -pedantic -lm -I$(IDIR)
 
 IDIR = ./inc/
 SRCDIR = ./src/

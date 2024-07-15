@@ -5,8 +5,8 @@
       /*includes headers*/
 /*=============================*/
 #include <stdio.h>
-
-
+#include <assert.h>
+#include <math.h>
 /*=============================*/
 		/*bit minuplation*/
 /*=============================*/
@@ -22,6 +22,11 @@
 
 //counts the bits in a ULL int
 static inline int bitlen(U64 bitboard);
+//gets first least significant bit in a board 
+static inline int getlsbi(U64 bitboard);
+
+//gets the row and col based on square number
+#define map_at(x) printf("%s\n",possitions[x])
 
 /*=============================*/
 		/*data to use*/
@@ -36,6 +41,17 @@ A4,B4,C4,D4,E4,F4,G4,H4,
 A3,B3,C3,D3,E3,F3,G3,H3,
 A2,B2,C2,D2,E2,F2,G2,H2,
 A1,B1,C1,D1,E1,F1,G1,H1
+};
+
+const char *possitions[] = {
+"A8","B8","C8","D8","E8","F8","G8","H8",
+"A7","B7","C7","D7","E7","F7","G7","H7",
+"A6","B6","C6","D6","E6","F6","G6","H6",
+"A5","B5","C5","D5","E5","F5","G5","H5",
+"A4","B4","C4","D4","E4","F4","G4","H4",
+"A3","B3","C3","D3","E3","F3","G3","H3",
+"A2","B2","C2","D2","E2","F2","G2","H2",
+"A1","B1","C1","D1","E1","F1","G1","H1"
 };
 
 //sides aka colors
@@ -92,7 +108,29 @@ U64 pawn_attacks[2][64];
 U64 knight_attacks[64];
 U64 king_attacks[64];
 
+// bishop relavant occupancy count for each possition
+const int bishop_roc[64] = {
+ 6, 5, 5, 5, 5, 5, 5, 6,
+ 5, 5, 5, 5, 5, 5, 5, 5,
+ 5, 5, 7, 7, 7, 7, 5, 5,
+ 5, 5, 7, 9, 9, 7, 5, 5,
+ 5, 5, 7, 9, 9, 7, 5, 5,
+ 5, 5, 7, 7, 7, 7, 5, 5,
+ 5, 5, 5, 5, 5, 5, 5, 5,
+ 6, 5, 5, 5, 5, 5, 5, 6
+};
 
+// rook relavant occupancy count for each possition
+const int rook_roc[64] = {
+ 12, 11, 11, 11, 11, 11, 11, 12,
+ 11, 10, 10, 10, 10, 10, 10, 11,
+ 11, 10, 10, 10, 10, 10, 10, 11,
+ 11, 10, 10, 10, 10, 10, 10, 11,
+ 11, 10, 10, 10, 10, 10, 10, 11,
+ 11, 10, 10, 10, 10, 10, 10, 11,
+ 11, 10, 10, 10, 10, 10, 10, 11,
+ 12, 11, 11, 11, 11, 11, 11, 12
+};
 
 const U64 NOT_A_FILE = 18374403900871474942ULL;
 const U64 NOT_H_FILE = 9187201950435737471ULL;
@@ -110,8 +148,11 @@ U64 musk_king_attack(int square);
 U64 musk_bishop_attack(int square);
 U64 musk_rook_attack(int square);
 
-U64 gen_bishop_attacks(int square,U64 block);
-U64 gen_rook_attacks(int square,U64 block);
+U64 otf_bishop_attacks(int square,U64 block);
+U64 otf_rook_attacks(int square,U64 block);
+
+//find possible blockage at a certain index
+U64 set_occupancy(int index,int bits_mask,U64 atk_map);
 
 void print_bitboard(U64 bitboard);
 
