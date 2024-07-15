@@ -87,6 +87,8 @@ enum {white,black};
 
 */
 U64 pawn_attacks[2][64];
+U64 knight_attacks[64];
+U64 king_attacks[64];
 
 const U64 NOT_A_FILE = 18374403900871474942ULL;
 const U64 NOT_H_FILE = 9187201950435737471ULL;
@@ -99,7 +101,10 @@ const U64 NOT_AB_FILE = 18229723555195321596ULL;
 
 //get precalculated attack table for pawn for every square
 U64 musk_pawn_attack(int color,int square);
+U64 musk_knight_attack(int square);
+U64 musk_king_attack(int square);
 void print_bitboard(U64 bitboard);
-void init_pawn_attacks();
+
+void init_leaper_attacks();
 
 #endif
