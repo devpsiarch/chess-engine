@@ -4,13 +4,6 @@
 	 /*func implimentations*/
 /*=============================*/
 
-static inline int bitlen(U64 bitboard){
-	int size = 0;
-	while(bitboard &= bitboard -1){
-		size ++;
-	}
-	return size+1;
-}
 
 void init_leaper_attacks(){
 	//loop over every square 
@@ -24,43 +17,7 @@ void init_leaper_attacks(){
 }
 
 U64 gen_rook_attacks(int square,U64 block){
-	
-	U64 attack_map = 0ULL;
 
-	int r = 0;
-	int f = 0; 
-
-	int tr = square/8;
-	int tf = square%8;
-
-	//mask relevant rook occupency
-	for(r = tr + 1 ; r <= 7;r++){ 
-		attack_map|= (1ULL << (r*8+tf));
-		if((1ULL << (r*8+tf)) & block){
-			break;
-		}
-	}
-	for(f = tf + 1 ; f <= 7;f++){ 
-		attack_map|= (1ULL << (tr*8+f));
-		if((1ULL << (tr*8+f)) & block){
-			break;
-		}
-	}
-		
-	for(r = tr - 1 ; r >= 0;r--){ 
-		attack_map|= (1ULL << (r*8+tf));
-		if((1ULL << (r*8+tf)) & block){
-			break;
-		}
-	}
-	for(f = tf - 1 ; f >= 0;f--){ 
-		attack_map|= (1ULL << (tr*8+f));
-		if((1ULL << (tr*8+f)) & block){
-			break;
-		}
-	}
-	
-	return attack_map;
 }
 
 U64 gen_bishop_attacks(int square,U64 block){
@@ -283,13 +240,9 @@ void print_bitboard(U64 bitboard){
 int main(void){
 	init_leaper_attacks();
 	U64 block = 0ULL;
-	set_bit(block,D7);
-	set_bit(block,D2);
-	set_bit(block,B4);
-	set_bit(block,G4);
-	set_bit(block,H4);
-	print_bitboard(block);
-	
-	printf("the size is %d\n",bitlen(block));
+	set_bit(block,G2);
+	set_bit(block,G6);
+	print_bitboard(gen_bishop_attacks(E4,block));	
+
 	return 0;
 }

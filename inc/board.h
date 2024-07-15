@@ -11,7 +11,6 @@
 		/*bit minuplation*/
 /*=============================*/
 #define U64 unsigned long long
-
 //gets the bit from the square at the bit board
 #define get_bit(bitboard,square) (bitboard & (1ULL << square))
 //sets up a bit on the bitboard
@@ -20,6 +19,9 @@
 #define pop_bit(bitboard,square) (get_bit(bitboard,square)) ? bitboard ^= (1ULL << square) : 0
 // calcs the square in a macro
 #define bit_at(R,F) R*8+F
+
+//counts the bits in a ULL int
+static inline int bitlen(U64 bitboard);
 
 /*=============================*/
 		/*data to use*/
@@ -90,6 +92,8 @@ U64 pawn_attacks[2][64];
 U64 knight_attacks[64];
 U64 king_attacks[64];
 
+
+
 const U64 NOT_A_FILE = 18374403900871474942ULL;
 const U64 NOT_H_FILE = 9187201950435737471ULL;
 const U64 NOT_GH_FILE = 4557430888798830399ULL;
@@ -103,8 +107,15 @@ const U64 NOT_AB_FILE = 18229723555195321596ULL;
 U64 musk_pawn_attack(int color,int square);
 U64 musk_knight_attack(int square);
 U64 musk_king_attack(int square);
+U64 musk_bishop_attack(int square);
+U64 musk_rook_attack(int square);
+
+U64 gen_bishop_attacks(int square,U64 block);
+U64 gen_rook_attacks(int square,U64 block);
+
 void print_bitboard(U64 bitboard);
 
 void init_leaper_attacks();
+
 
 #endif
