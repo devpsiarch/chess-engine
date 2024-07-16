@@ -301,16 +301,113 @@ void print_bitboard(U64 bitboard){
 	printf("   board value :%llud\n\n",bitboard);
 }
 
+
+unsigned int rand_U32(){
+	int result = state;
+	//xor algo 
+	result ^= result << 13;
+	result ^= result >> 17;
+	result ^= result << 5;
+
+	state = result;
+	return result;	
+}
+
+U64 rand_U64(){
+	U64 n1,n2,n3,n4;
+	n1 = ((U64)rand_U32()) & 0xffff;
+	n2 = ((U64)rand_U32()) & 0xffff;
+	n3 = ((U64)rand_U32()) & 0xffff;
+	n4 = ((U64)rand_U32()) & 0xffff;
+
+	return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48);
+}
+
+//magic
+
+U64 rand_magic(){
+	return (rand_U64() & rand_U64() & rand_U64());
+}
+
+
+U64 find_magic_number(int square,int rob,int bishop){
+	U64 ocp[4096];
+
+	U64 attacks[4096];
+
+	U64 used_attacks[4096];
+
+	U64 attack_mask = bishop ? musk_bishop_attack(square) : musk_rook_attack(square);
+
+	//init ocp indices 
+	int ocp_idc = 1 << rob;
+	
+	
+	//for counts
+	int i;
+
+	for(i = 0 ; i < ocp_idc ; i++){
+		//init ocp
+		ocp[i]	= set_occupancy(i,rob,attack_mask);
+		
+		//init attacks	
+		attacks[i] = bishop ? otf_bishop_attacks(square,ocp[i]) : 
+							  otf_rook_attacks(square,ocp[i]);
+	}
+
+	U64 magic_number;
+	//test magic number loop throught trial and error 
+	for(i = 0;i < 100000;i++){
+		//skip bad ones from the start
+		if(bitlen((attack_mask * magic_number) & 0xff00000000000000) < 6) continue;
+		
+		//gets randome magic number candidate
+		magic_number = rand_magic();
+
+		//init used attacks for ech trial
+		memset(used_attacks,0ULL,sizeof(used_attacks));
+		
+		
+		//test if index is correct (checl hashing)	
+		int fail,index,magic_index;
+		for(fail = 0 , index = 0;!fail && index < rob;index++){
+			//core expression for validity of a magic number	
+			magic_index = (int)((ocp[index] * magic_number) >> (64-rob));
+			printf("magic index is %d\n",magic_index);
+			printf("index is %d\n",index);
+			//not used attack yet
+			if(used_attacks[magic_index] == 0ULL) 
+				used_attacks[magic_index] = attacks[index];
+			
+			else if(used_attacks[magic_number] != attacks[index]){
+				//magic number fails
+				fail = 1;
+			}
+
+		}
+		if(!fail) return magic_number;
+	}
+	printf("magic number was never found!!!\n");
+	return 0ULL;
+}
+
+
+void init_magic_numbers(){
+	//loop through all squares
+	for(int i = 0 ; i < 64 ; i++){
+		//for bishops
+		printf("0x%lluxULL\n",find_magic_number(i,bishop_rob[i],bishop));
+		//for rooks
+		//printf("0x%lluxULL\n",find_magic_number(i,rook_rob[i],rook));
+
+	}
+}
+
 int main(void){
 	init_leaper_attacks();
-	int sqr;
-	for(int i = 0 ; i < 8 ; i++){
-		for(int j = 0 ; j < 8 ;j++){
-			sqr = i*8+j;
-			printf(" %d,",bitlen(musk_rook_attack(sqr)));	
-		}
-		printf("\n");
-	}	
+	
+	init_magic_numbers();
+
 
 	return 0;
 }

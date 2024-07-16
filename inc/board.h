@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <string.h>
+
+
 /*=============================*/
 		/*bit minuplation*/
 /*=============================*/
@@ -27,6 +30,8 @@ static inline int getlsbi(U64 bitboard);
 
 //gets the row and col based on square number
 #define map_at(x) printf("%s\n",possitions[x])
+
+
 
 /*=============================*/
 		/*data to use*/
@@ -56,6 +61,9 @@ const char *possitions[] = {
 
 //sides aka colors
 enum {white,black};
+
+//bishop and rook enum
+enum {rook,bishop};
 
 /*=============================*/
 		/*attacks*/
@@ -108,8 +116,8 @@ U64 pawn_attacks[2][64];
 U64 knight_attacks[64];
 U64 king_attacks[64];
 
-// bishop relavant occupancy count for each possition
-const int bishop_roc[64] = {
+// bishop relavant occupancy bits for each possition
+const int bishop_rob[64] = {
  6, 5, 5, 5, 5, 5, 5, 6,
  5, 5, 5, 5, 5, 5, 5, 5,
  5, 5, 7, 7, 7, 7, 5, 5,
@@ -120,8 +128,8 @@ const int bishop_roc[64] = {
  6, 5, 5, 5, 5, 5, 5, 6
 };
 
-// rook relavant occupancy count for each possition
-const int rook_roc[64] = {
+// rook relavant occupancy bits for each possition
+const int rook_rob[64] = {
  12, 11, 11, 11, 11, 11, 11, 12,
  11, 10, 10, 10, 10, 10, 10, 11,
  11, 10, 10, 10, 10, 10, 10, 11,
@@ -136,6 +144,15 @@ const U64 NOT_A_FILE = 18374403900871474942ULL;
 const U64 NOT_H_FILE = 9187201950435737471ULL;
 const U64 NOT_GH_FILE = 4557430888798830399ULL;
 const U64 NOT_AB_FILE = 18229723555195321596ULL; 
+
+
+/*=============================*/
+	  /*rand magic nums*/
+/*=============================*/
+
+//a kind of seed for the xor shift algo
+//that gens randoms nums cross platform
+unsigned int state = 1804289383;
 
 /*=============================*/
 		/*func defs*/
@@ -157,6 +174,20 @@ U64 set_occupancy(int index,int bits_mask,U64 atk_map);
 void print_bitboard(U64 bitboard);
 
 void init_leaper_attacks();
+
+unsigned int rand_U32();
+
+U64 rand_U64();
+
+//gets rand magic number
+U64 rand_magic();
+
+//searches for possible magic number
+U64 find_magic_number(int square,int rob,int bishop);
+
+//get all needed magic numbers
+void init_magic_numbers();
+
 
 
 #endif
