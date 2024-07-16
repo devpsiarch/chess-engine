@@ -358,11 +358,13 @@ U64 find_magic_number(int square,int rob,int bishop){
 	U64 magic_number;
 	//test magic number loop throught trial and error 
 	for(i = 0;i < 100000;i++){
-		//skip bad ones from the start
-		if(bitlen((attack_mask * magic_number) & 0xff00000000000000) < 6) continue;
-		
+
 		//gets randome magic number candidate
 		magic_number = rand_magic();
+		
+		//skip bad ones from the start
+		if(bitlen((attack_mask * magic_number) & 0xFF00000000000000) < 6) continue;
+		
 
 		//init used attacks for ech trial
 		memset(used_attacks,0ULL,sizeof(used_attacks));
@@ -373,13 +375,13 @@ U64 find_magic_number(int square,int rob,int bishop){
 		for(fail = 0 , index = 0;!fail && index < rob;index++){
 			//core expression for validity of a magic number	
 			magic_index = (int)((ocp[index] * magic_number) >> (64-rob));
-			printf("magic index is %d\n",magic_index);
-			printf("index is %d\n",index);
+	
+
 			//not used attack yet
 			if(used_attacks[magic_index] == 0ULL) 
 				used_attacks[magic_index] = attacks[index];
 			
-			else if(used_attacks[magic_number] != attacks[index]){
+			else if(used_attacks[magic_index] != attacks[index]){
 				//magic number fails
 				fail = 1;
 			}
@@ -396,18 +398,18 @@ void init_magic_numbers(){
 	//loop through all squares
 	for(int i = 0 ; i < 64 ; i++){
 		//for bishops
-		printf("0x%lluxULL\n",find_magic_number(i,bishop_rob[i],bishop));
+		printf("0x%llxULL,\n",find_magic_number(i,bishop_rob[i],bishop));
 		//for rooks
-		//printf("0x%lluxULL\n",find_magic_number(i,rook_rob[i],rook));
+		printf("0x%llxULL\n",find_magic_number(i,rook_rob[i],rook));
 
 	}
 }
+void board_init(){
+	init_leaper_attacks();
+}
+
 
 int main(void){
-	init_leaper_attacks();
-	
-	init_magic_numbers();
-
-
+	board_init();	
 	return 0;
 }
