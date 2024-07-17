@@ -1,18 +1,24 @@
 cc = gcc
-cflages = -lncurses -Wall -Wextra -pedantic -lm -I$(IDIR)
+cflages = -Wall -Wextra -pedantic -lm -g -I$(IDIR)
+
+debug = -g -I$(IDIR)
 
 IDIR = ./inc/
 SRCDIR = ./src/
 
 SOURCES = $(SRCDIR)*.c
 
-all:board run 
+all:engine run clean 
 
-board:inc/board.h src/board.c
+engine:inc/engine.h src/engine.c
 	$(cc) $(SOURCES) $(cflages) -o $@
 
+debug:
+	$(cc) $(SOURCES) $(debug) -o $@
+
+
 run:
-	./board
+	./engine
 
 clean:
-	rm board
+	rm engine

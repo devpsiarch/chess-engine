@@ -1,4 +1,4 @@
-#include "board.h"
+#include "engine.h"
 
 /*=============================*/
 	 /*func implimentations*/
@@ -303,7 +303,7 @@ void print_bitboard(U64 bitboard){
 
 
 unsigned int rand_U32(){
-	int result = state;
+	unsigned int result = state;
 	//xor algo 
 	result ^= result << 13;
 	result ^= result >> 17;
@@ -315,10 +315,10 @@ unsigned int rand_U32(){
 
 U64 rand_U64(){
 	U64 n1,n2,n3,n4;
-	n1 = ((U64)rand_U32()) & 0xffff;
-	n2 = ((U64)rand_U32()) & 0xffff;
-	n3 = ((U64)rand_U32()) & 0xffff;
-	n4 = ((U64)rand_U32()) & 0xffff;
+	n1 = (U64)(rand_U32()) & 0xFFFF;
+	n2 = (U64)(rand_U32()) & 0xFFFF;
+	n3 = (U64)(rand_U32()) & 0xFFFF;
+	n4 = (U64)(rand_U32()) & 0xFFFF;
 
 	return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48);
 }
@@ -326,7 +326,7 @@ U64 rand_U64(){
 //magic
 
 U64 rand_magic(){
-	return (rand_U64() & rand_U64() & rand_U64());
+	return rand_U64() & rand_U64() & rand_U64();
 }
 
 
@@ -357,7 +357,7 @@ U64 find_magic_number(int square,int rob,int bishop){
 
 	U64 magic_number;
 	//test magic number loop throught trial and error 
-	for(i = 0;i < 100000;i++){
+	for(i = 0;i < 100000000;i++){
 
 		//gets randome magic number candidate
 		magic_number = rand_magic();
@@ -393,23 +393,76 @@ U64 find_magic_number(int square,int rob,int bishop){
 	return 0ULL;
 }
 
-
+//doesnt generate correct magic numbers althought they must be
+//for now am stealing ones from a youtube tutorial!!!
 void init_magic_numbers(){
 	//loop through all squares
 	for(int i = 0 ; i < 64 ; i++){
 		//for bishops
-		printf("0x%llxULL,\n",find_magic_number(i,bishop_rob[i],bishop));
+		//printf("0x%llxULL,\n",find_magic_number(i,bishop_rob[i],bishop));
 		//for rooks
-		printf("0x%llxULL\n",find_magic_number(i,rook_rob[i],rook));
+		printf("0x%llxULL,\n",find_magic_number(i,rook_rob[i],rook));
+		}
+	printf("--------init-done----------\n");
+
+}
+
+void init_sliders_attacks(int bishop){
+	int robc,magic_index,ocp_indicies;
+	U64 attack_mask,ocp;
+	for(int i = 0 ; i < 64 ; i++){
+		bishop_masks[i] = musk_bishop_attack(i);
+		rook_masks[i] = musk_rook_attack(i);
+		
+		attack_mask = bishop ? bishop_masks[i] : rook_masks[i];
+
+		robc = bitlen(attack_mask);
+
+		ocp_indicies = (1 << robc);
+		
+		for(int index = 0 ; index < ocp_indicies;index++){
+			if(bishop){
+				ocp = set_occupancy(index,robc,attack_mask);
+				magic_index = (ocp * bishop_magics[i]) >> (64 - bishop_rob[i]);
+				bishop_attack_table[i][magic_index] = otf_bishop_attacks(i,ocp);
+			}
+			else{
+				ocp = set_occupancy(index,robc,attack_mask);
+				magic_index = (ocp * rook_magics[i]) >> (64 - rook_rob[i]);
+				rook_attack_table[i][magic_index] = otf_rook_attacks(i,ocp);		
+			}
+
+		}
 
 	}
 }
+
+static inline U64 get_bishop_attacks(int square,U64 ocp){
+	ocp &= bishop_masks[square];
+	ocp *= bishop_magics[square];
+	ocp >>= 64 - bishop_rob[square];
+	return bishop_attack_table[square][ocp];
+}
+
+static inline U64 get_rook_attacks(int square,U64 ocp){
+	ocp &= rook_masks[square];
+	ocp *= rook_magics[square];
+	ocp >>= 64 - rook_rob[square];
+	return rook_attack_table[square][ocp];
+}
+
+
 void board_init(){
 	init_leaper_attacks();
+	init_sliders_attacks(bishop);
+	init_sliders_attacks(rook);
 }
 
 
 int main(void){
 	board_init();	
+	set_bit(bitboards[P],E4);
+	print_bitboard(bitboards[P]);
+
 	return 0;
 }
