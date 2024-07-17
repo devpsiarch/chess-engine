@@ -336,6 +336,8 @@ enum {P,N,B,R,Q,K,p,n,b,r,q,k};
 enum {wk = 1,wq = 2, bk = 4 , bq = 8};
 
 char ASCII_pieces[12] = "PNBRQKpnbrqk"; 
+
+//this wont print on windows , use WIN64
 char *unicode_pieces[12] = {"♙","♘","♗","♖","♕","♔","♟︎","♞","♝","♜","♛","♚"};
 
 //converty ascci chars to hardcoded consts
@@ -458,8 +460,8 @@ int char_pieces[] = {
 	//all black , all white and all colors (captures and stuff)
 	U64 occupancies[3];
 
-	//side to move
-	int side;
+	//side to move white or black
+	int side = 0;
 
 	//enpassant square
 	int enpassant = no_square;
@@ -509,4 +511,8 @@ void board_init();
 
 static inline U64 get_bishop_attacks(int square,U64 ocp);
 static inline U64 get_rook_attacks(int square,U64 ocp);
+
+
+void print_chessboard(U64 chessboard[12]);
+
 #endif

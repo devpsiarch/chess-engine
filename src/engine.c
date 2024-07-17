@@ -459,10 +459,44 @@ void board_init(){
 }
 
 
-int main(void){
-	board_init();	
-	set_bit(bitboards[P],E4);
-	print_bitboard(bitboards[P]);
+void print_chessboard(U64 chessboard[12]){
+	int square,fail;
+	for(int rank = 0 ; rank < 8;rank++){
+		for(int file = 0 ; file < 8;file++){
+			if(!file) printf("%d  ",8-rank);
+			square = rank*8+file;
+			fail = 0;
+			for(int i = 0 ; i < 12;i++){
+				if(get_bit(chessboard[i],square)){
+					printf("%s ",unicode_pieces[i]);
+					fail++;
+				}
+			}
+			if(!fail) printf(". ");
+		}
+		printf("\n");
+	}
+	printf("\n   A B C D E F G H\n");
+	printf("   side to move : %s", !side ? "white" : "black");
+	printf("\n");
+	printf("   enpassant : %s",(enpassant != no_square) ? possitions[enpassant] : "no");
+	printf("\n");
+	printf("   castling rights : %c%c%c%c",
+			(castle & wk) ? ASCII_pieces[K] : '-',
+			(castle & wq) ? ASCII_pieces[Q] : '-',
+			(castle & bk) ? ASCII_pieces[k] : '-',
+			(castle & bq) ? ASCII_pieces[q] : '-'
+		  );	
+	printf("\n\n");
+}
 
+int main(void){
+	board_init();
+	castle = 15;
+	for(int i = A2 ; i <=H2;i++){
+		set_bit(bitboards[P],i);		
+	}
+
+	print_chessboard(bitboards);
 	return 0;
 }
