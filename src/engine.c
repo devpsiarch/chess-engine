@@ -468,7 +468,7 @@ void print_chessboard(U64 chessboard[12]){
 			fail = 0;
 			for(int i = 0 ; i < 12;i++){
 				if(get_bit(chessboard[i],square)){
-					printf("%s ",unicode_pieces[i]);
+					printf("%c ",ASCII_pieces[i]);
 					fail++;
 				}
 			}
@@ -490,13 +490,41 @@ void print_chessboard(U64 chessboard[12]){
 	printf("\n\n");
 }
 
+char **tok_cmd(char *delim,char *cmd){
+        int token_size = 64;
+        int pos = 0;
+
+        char **tokens = malloc(token_size * sizeof(char * ));
+        char *token;
+
+        if(!tokens){
+                fprintf(stderr, "parser: Allocation error <tokens>\n");
+                exit(EXIT_FAILURE);
+        }
+
+        token = strtok(cmd,delim);
+        while(token != NULL){
+                tokens[pos] = token;
+                pos++;
+
+                if(pos >= token_size){
+                        token_size += 1024;
+                        tokens = realloc(tokens,token_size * sizeof(char *));
+
+                        if(!tokens){
+                                fprintf(stderr, "parser: reAllocation error <tokens>\n");
+                                exit(EXIT_FAILURE);
+                        }
+                }
+                token = strtok(NULL,delim);
+        }
+        tokens[pos] = NULL;
+        return tokens;
+}
+
 int main(void){
 	board_init();
-	castle = 15;
-	for(int i = A2 ; i <=H2;i++){
-		set_bit(bitboards[P],i);		
-	}
+	char **args = tok_cmd(FEN_DELIM,"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); 
 
-	print_chessboard(bitboards);
 	return 0;
 }

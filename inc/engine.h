@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <math.h>
 #include <string.h>
-
+#include <stdlib.h>
 
 /*=============================*/
 		/*bit minuplation*/
@@ -36,6 +36,8 @@ static inline int getlsbi(U64 bitboard);
 /*=============================*/
 		/*data to use*/
 /*=============================*/
+
+#define FEN_DELIM " /"
 
 enum {
 A8,B8,C8,D8,E8,F8,G8,H8,
@@ -467,7 +469,7 @@ int char_pieces[] = {
 	int enpassant = no_square;
 
 	//castle rights
-	int castle;
+	int castle = 0;
 	
 
 /*=============================*/
@@ -514,5 +516,7 @@ static inline U64 get_rook_attacks(int square,U64 ocp);
 
 
 void print_chessboard(U64 chessboard[12]);
+
+void parse_fen(char *fen);
 
 #endif
