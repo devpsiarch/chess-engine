@@ -472,6 +472,8 @@ int char_pieces[] = {
 	int castle = 0;
 	
 
+
+
 /*=============================*/
 		/*func defs*/
 /*=============================*/
@@ -517,6 +519,8 @@ static inline U64 get_rook_attacks(int square,U64 ocp);
 
 void print_chessboard(U64 chessboard[12]);
 
-void parse_fen(char *fen);
+char **parse_fen(char *fen);
+
+U64 fenget_chessboard(char **args);
 
 #endif

@@ -490,41 +490,42 @@ void print_chessboard(U64 chessboard[12]){
 	printf("\n\n");
 }
 
-char **tok_cmd(char *delim,char *cmd){
-        int token_size = 64;
-        int pos = 0;
+char **parse_fen(char *fen){
+	//13 tokens >=>	8 for each rank
+	//				1 side to move
+	//				1 castle rights
+	//				1 enpassant
+	//				1 50 moves rule
+	//				1 full move counter	
+	char *token;
+	char **tokens = (char **)malloc(13*sizeof(char *));
+	int pos = 0;
+	if(tokens == NULL){
+		printf("error allocating memory!\n");
+		exit(EXIT_FAILURE);
+	}
+	token = strtok(fen,FEN_DELIM);
+	while(token != NULL){
+		tokens[pos] = token;
+		pos++;
+		token = strtok(NULL,FEN_DELIM);	
+	}
+	return tokens;	
+}
 
-        char **tokens = malloc(token_size * sizeof(char * ));
-        char *token;
 
-        if(!tokens){
-                fprintf(stderr, "parser: Allocation error <tokens>\n");
-                exit(EXIT_FAILURE);
-        }
-
-        token = strtok(cmd,delim);
-        while(token != NULL){
-                tokens[pos] = token;
-                pos++;
-
-                if(pos >= token_size){
-                        token_size += 1024;
-                        tokens = realloc(tokens,token_size * sizeof(char *));
-
-                        if(!tokens){
-                                fprintf(stderr, "parser: reAllocation error <tokens>\n");
-                                exit(EXIT_FAILURE);
-                        }
-                }
-                token = strtok(NULL,delim);
-        }
-        tokens[pos] = NULL;
-        return tokens;
+U64 fenget_chessboard(char **args){
+	int i=0;
+	while(args[0][i] != '\0'){
+		printf("%c",args[0][i]);
+		i++;
+	}
 }
 
 int main(void){
 	board_init();
-	char **args = tok_cmd(FEN_DELIM,"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); 
-
+	char fen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+	char **toks = parse_fen(fen);
+	U64 test = fenget_chessboard(toks);
 	return 0;
 }
