@@ -452,14 +452,18 @@ static inline U64 get_rook_attacks(int square,U64 ocp){
 }
 
 
-void board_init(){
+void board_init(chessboard *X){
 	init_leaper_attacks();
 	init_sliders_attacks(bishop);
 	init_sliders_attacks(rook);
+
+	X->side = 0;
+	X->enpassant = no_square;
+	X->castle = 0;
 }
 
 
-void print_chessboard(U64 chessboard[12]){
+void print_chessboard(chessboard *board){
 	int square,fail;
 	for(int rank = 0 ; rank < 8;rank++){
 		for(int file = 0 ; file < 8;file++){
@@ -467,7 +471,7 @@ void print_chessboard(U64 chessboard[12]){
 			square = rank*8+file;
 			fail = 0;
 			for(int i = 0 ; i < 12;i++){
-				if(get_bit(chessboard[i],square)){
+				if(get_bit(board->bitboards[i],square)){
 					printf("%c ",ASCII_pieces[i]);
 					fail++;
 				}
@@ -477,16 +481,16 @@ void print_chessboard(U64 chessboard[12]){
 		printf("\n");
 	}
 	printf("\n   A B C D E F G H\n");
-	printf("   side to move : %s", !side ? "white" : "black");
+	printf("   side to move : %s", !(board->side) ? "white" : "black");
 	printf("\n");
-	printf("   enpassant : %s",(enpassant != no_square) ? possitions[enpassant] : "no");
+	printf("   enpassant : %s",(board->enpassant != no_square) ? possitions[board->enpassant] : "no");
 	printf("\n");
 	printf("   castling rights : %c%c%c%c",
-			(castle & wk) ? ASCII_pieces[K] : '-',
-			(castle & wq) ? ASCII_pieces[Q] : '-',
-			(castle & bk) ? ASCII_pieces[k] : '-',
-			(castle & bq) ? ASCII_pieces[q] : '-'
-		  );	
+			(board->castle & wk) ? ASCII_pieces[K] : '-',
+			(board->castle & wq) ? ASCII_pieces[Q] : '-',
+			(board->castle & bk) ? ASCII_pieces[k] : '-',
+			(board->castle & bq) ? ASCII_pieces[q] : '-'
+	  );	
 	printf("\n\n");
 }
 
@@ -514,18 +518,59 @@ char **parse_fen(char *fen){
 }
 
 
-U64 fenget_chessboard(char **args){
-	int i=0;
-	while(args[0][i] != '\0'){
-		printf("%c",args[0][i]);
-		i++;
+void fenget_chessboard(char *fen,chessboard *board){
+	int square = 0;
+	memset(board->bitboards,0ULL,sizeof(board->bitboards));
+	memset(board->occupancies,0ULL,sizeof(board->occupancies));
+	int piece,digit;
+	for(int rank = 0 ; rank < 8 ; rank++){
+		for(int file = 0 ; file < 8 ; file++){
+			int square = rank*8+file;
+			//we are dealing with black pieces
+			if((*fen > 'a') || (*fen < 'z')){
+				piece = char_pieces[*fen];
+				set_bit(board->bitboards[piece],square);
+				set_bit(board->occupancies[1],square);
+				set_bit(board->occupancies[2],square);
+				fen++;
+				continue;
+			}
+			//dealing with white pieces
+			if((*fen > 'A') || (*fen < 'Z')){
+				piece = char_pieces[*fen];
+				set_bit(board->bitboards[piece],square);
+				set_bit(board->occupancies[0],square);
+				set_bit(board->occupancies[2],square);
+				fen++;
+				continue;
+			}
+			//in this case we handle skips of squares
+			if(isdigit(*fen)){
+				digit = (*fen - '0');
+				printf("the digit is %d\n",digit);
+				file += digit;
+				fen++;
+				continue;
+			}
+			if(*fen == '/'){
+				fen++;
+				continue;
+			}
+			if(*fen == ' '){
+				return;
+			}
+
+		}
 	}
 }
 
 int main(void){
-	board_init();
+	chessboard main;
+	board_init(&main);
+	print_chessboard(&main);
 	char fen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-	char **toks = parse_fen(fen);
-	U64 test = fenget_chessboard(toks);
+	//char **toks = parse_fen(fen);
+	fenget_chessboard(fen,&main);
+	print_chessboard(&main);
 	return 0;
 }

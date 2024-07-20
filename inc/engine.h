@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <ctype.h>
 /*=============================*/
 		/*bit minuplation*/
 /*=============================*/
@@ -455,7 +455,7 @@ int char_pieces[] = {
 
 */
 
-
+typedef struct chessboard{
 	//for each piece including diff colors
 	U64 bitboards[12];
 
@@ -463,14 +463,14 @@ int char_pieces[] = {
 	U64 occupancies[3];
 
 	//side to move white or black
-	int side = 0;
+	int side;
 
 	//enpassant square
-	int enpassant = no_square;
+	int enpassant;
 
 	//castle rights
-	int castle = 0;
-	
+	int castle;
+}chessboard;
 
 
 
@@ -510,17 +510,20 @@ U64 find_magic_number(int square,int rob,int bishop);
 void init_magic_numbers();
 
 //init everything function
-void board_init();
+void board_init(chessboard *X);
 
 
 static inline U64 get_bishop_attacks(int square,U64 ocp);
 static inline U64 get_rook_attacks(int square,U64 ocp);
 
 
-void print_chessboard(U64 chessboard[12]);
+void print_chessboard(chessboard *board);
 
 char **parse_fen(char *fen);
 
-U64 fenget_chessboard(char **args);
+void fenget_chessboard(char *fen,chessboard *board);
+
+
+
 
 #endif
