@@ -519,58 +519,92 @@ char **parse_fen(char *fen){
 
 
 void fenget_chessboard(char *fen,chessboard *board){
-	int square = 0;
 	memset(board->bitboards,0ULL,sizeof(board->bitboards));
 	memset(board->occupancies,0ULL,sizeof(board->occupancies));
 	int piece,digit;
-	for(int rank = 0 ; rank < 8 ; rank++){
+	for(int rank = 0 ; rank < 8 ; rank++){	
 		for(int file = 0 ; file < 8 ; file++){
 			int square = rank*8+file;
 			//we are dealing with black pieces
-			if((*fen > 'a') || (*fen < 'z')){
+			if((*fen >= 'a') && (*fen <= 'z')){
 				piece = char_pieces[*fen];
 				set_bit(board->bitboards[piece],square);
 				set_bit(board->occupancies[1],square);
 				set_bit(board->occupancies[2],square);
 				fen++;
-				continue;
 			}
 			//dealing with white pieces
-			if((*fen > 'A') || (*fen < 'Z')){
+			if((*fen >= 'A') && (*fen <= 'Z')){
 				piece = char_pieces[*fen];
 				set_bit(board->bitboards[piece],square);
 				set_bit(board->occupancies[0],square);
 				set_bit(board->occupancies[2],square);
 				fen++;
-				continue;
 			}
 			//in this case we handle skips of squares
-			if(isdigit(*fen)){
-				digit = (*fen - '0');
-				printf("the digit is %d\n",digit);
+			if((*fen >= '0') && (*fen <= '9')){
+				digit = *fen - '0';
+				piece = -1;
+				for(int i = P ;i <= k ;i++){
+					if(get_bit(board->bitboards[i],square)){
+						piece = i;
+					}
+				}
+				if(piece == -1)
+					file--;
+
 				file += digit;
 				fen++;
-				continue;
-			}
-			if(*fen == '/'){
-				fen++;
-				continue;
-			}
-			if(*fen == ' '){
-				return;
 			}
 
+			if(*fen == '/'){
+				fen++;
+			}
 		}
 	}
+			fen++;
+			//side to move
+			if(*fen == 'w'){
+				board->side = white;
+			}
+			else{
+				board->side = black;
+			}
+			
+			fen +=2;
+			
+			//castle rights
+			while(*fen != ' '){
+				switch (*fen){
+					case 'K': board->castle |= wk;break;
+					case 'Q': board->castle |= wq;break;
+					case 'k': board->castle |= bk;break;
+					case 'q': board->castle |= bq;break;
+					case '-': break;
+				}
+				fen++;
+			}
+			fen++;
+			if(*fen != '-'){
+		        int f = fen[0] - 'a';
+				int r = 8 - (fen[1] - '0');
+				board->enpassant = r*8+f;
+			}
+			else{
+				board->enpassant = no_square;
+			}
+
+	
 }
 
 int main(void){
 	chessboard main;
 	board_init(&main);
 	print_chessboard(&main);
-	char fen[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-	//char **toks = parse_fen(fen);
-	fenget_chessboard(fen,&main);
+	fenget_chessboard(killer_position,&main);
 	print_chessboard(&main);
+
+	
 	return 0;
 }
+
